@@ -4,6 +4,7 @@ import 'package:todoapp/src/todo/data/repositories/todo_repository_impl.dart';
 import 'package:todoapp/src/todo/domain/repositories/todo_repository.dart';
 
 import '../src/todo/domain/usecases/get_all_todos_usecase.dart';
+import '../src/todo/domain/usecases/save_todo_usecase.dart';
 
 final getIt = GetIt.instance;
 
@@ -20,4 +21,5 @@ void _setUpTodoModules() {
   
   // Usecases
   getIt.registerLazySingleton<GetAllTodosUsecase>(() => GetAllTodosUsecase(getIt()));
+  getIt.registerLazySingleton<SaveTodoUsecase>(() => SaveTodoUsecase(getIt()));
 }
