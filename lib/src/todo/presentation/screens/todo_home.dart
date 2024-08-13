@@ -1,10 +1,8 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:todoapp/src/todo/presentation/blocs/todo/todo_bloc.dart';
-import 'package:todoapp/src/todo/presentation/screens/add_todo_screen.dart';
+import 'package:todoapp/src/todo/presentation/screens/add_edit_todo_screen.dart';
 
 class TodoHome extends StatelessWidget {
   const TodoHome({super.key});
@@ -13,7 +11,7 @@ class TodoHome extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 20.0,
-      ),
+      ), 
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: [
@@ -72,7 +70,7 @@ class TodoHome extends StatelessWidget {
               builder: (todoContext, todoState) {
                 return TextButton(
                   onPressed: () async {
-                    bool? isSaved = await Navigator.push(context, MaterialPageRoute(builder: (context) => AddTodoScreen()));
+                    bool? isSaved = await Navigator.push(context, MaterialPageRoute(builder: (context) => AddEditTodoScreen()));
 
                     if (isSaved!) {
                       if (context.mounted) {
@@ -135,7 +133,24 @@ class TodoHome extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8.0),
                               splashColor: Colors.purple[100],
                               highlightColor: Colors.purple[100],
-                              onTap: () => log('${todoState.data[i]}'),
+                              onTap: () async {
+                                bool? isUpdated = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                      AddEditTodoScreen(
+                                        formType: 'update',
+                                        todo: todoState.data[i],
+                                      ),
+                                    ),
+                                  );
+
+                                if (isUpdated!) {
+                                  if (context.mounted) {
+                                    todoContext.read<TodoBloc>().add(const TodoFetchAll());
+                                  }
+                                }
+                              },
                               child: Ink(
                                 height: 150,
                                 width: 150,

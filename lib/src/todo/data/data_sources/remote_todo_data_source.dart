@@ -41,4 +41,43 @@ class RemoteTodoDataSourceImpl extends TodoDataSource {
       throw Exception('Err: status code not ok');
     }
   }
+  
+  @override
+  Future<bool> updateTodo(TodoParams params) async {
+    final response = await _dio.put('http://192.168.0.149:8000/api/todos/${params.id}', 
+        data: {
+          'title': params.title,
+          'content': params.content,
+          'priority_level': params.priorityLevel,
+          'is_finished': params.isFinished
+        }
+      );
+
+    if (response.statusCode == 200) {
+      if (response.data['status'] == 'err') {
+        throw Exception(response.data['message']);
+      }
+      return true;
+    } else {
+      throw Exception('Err: status code not ok');
+    }
+  }
+  
+  @override
+  Future<bool> deleteTodos(List<int> params) async {
+    final response = await _dio.post('http://192.168.0.149:8000/api/todos/delete_data',
+      data: {
+        'ids': params,
+      }
+    );
+
+    if (response.statusCode == 200) {
+      if (response.data['status'] == 'err') {
+        throw Exception(response.data['message']);
+      }
+      return true;
+    } else {
+      throw Exception('Err: status code not ok');
+    }
+  }
 }

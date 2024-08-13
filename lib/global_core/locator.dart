@@ -3,8 +3,10 @@ import 'package:todoapp/src/todo/data/data_sources/remote_todo_data_source.dart'
 import 'package:todoapp/src/todo/data/repositories/todo_repository_impl.dart';
 import 'package:todoapp/src/todo/domain/repositories/todo_repository.dart';
 
+import '../src/todo/domain/usecases/delete_todos_usecase.dart';
 import '../src/todo/domain/usecases/get_all_todos_usecase.dart';
 import '../src/todo/domain/usecases/save_todo_usecase.dart';
+import '../src/todo/domain/usecases/update_todo_usecase.dart';
 
 final getIt = GetIt.instance;
 
@@ -22,4 +24,6 @@ void _setUpTodoModules() {
   // Usecases
   getIt.registerLazySingleton<GetAllTodosUsecase>(() => GetAllTodosUsecase(getIt()));
   getIt.registerLazySingleton<SaveTodoUsecase>(() => SaveTodoUsecase(getIt()));
+  getIt.registerLazySingleton<UpdateTodoUsecase>(() => UpdateTodoUsecase(getIt()));
+  getIt.registerLazySingleton<DeleteTodosUsecase>(() => DeleteTodosUsecase(getIt()));
 }

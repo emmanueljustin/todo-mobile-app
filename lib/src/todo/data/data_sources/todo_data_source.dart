@@ -5,4 +5,6 @@ import '../../core/parameters/parameters.dart';
 abstract class TodoDataSource {
   Future<List<TodoItemModel>> getAllTodos();
   Future<bool> saveTodos(TodoParams params);
+  Future<bool> updateTodo(TodoParams params);
+  Future<bool> deleteTodos(List<int> params);
 }

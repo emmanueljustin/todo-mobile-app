@@ -9,4 +9,6 @@ abstract class TodoRepository {
 
   Future<(String?, List<TodoItemModel>?)> getAllTodos();
   Future<(String?, bool?)> saveTodos(TodoParams params);
+  Future<(String?, bool?)> updateTodo(TodoParams params);
+  Future<(String?, bool?)> deleteTodos(List<int> params);
 }
