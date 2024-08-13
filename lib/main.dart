@@ -8,11 +8,18 @@ import 'src/todo/presentation/screens/todo_home.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await setupLocator();
-  runApp(const MyApp());
+  runApp(
+    MultiBlocProvider(
+      providers: BlocProviders.get(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   // This widget is the root of your application.
   @override
@@ -21,10 +28,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: MultiBlocProvider(
-        providers: BlocProviders.get(),
-        child: const TodoHome(),
-      ),
+      home: const TodoHome(),
     );
   }
 }

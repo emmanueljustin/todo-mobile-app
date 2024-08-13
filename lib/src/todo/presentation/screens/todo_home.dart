@@ -11,7 +11,7 @@ class TodoHome extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 20.0,
-      ), 
+      ),
       width: MediaQuery.of(context).size.width,
       child: Column(
         children: [
@@ -53,8 +53,12 @@ class TodoHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<TodoBloc>(
-      create: (context) => TodoBloc()..add(const TodoFetchAll()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<TodoBloc>(
+          create: (context) => TodoBloc()..add(const TodoFetchAll()),
+        ),
+      ],
       child: Scaffold(
         backgroundColor: Colors.purple[50],
         appBar: AppBar(
@@ -129,68 +133,80 @@ class TodoHome extends StatelessWidget {
                         shrinkWrap: true,
                         children: [
                           for (int i = 0; i < todoState.data.length; i++)
-                            InkWell(
-                              borderRadius: BorderRadius.circular(8.0),
-                              splashColor: Colors.purple[100],
-                              highlightColor: Colors.purple[100],
-                              onTap: () async {
-                                bool? isUpdated = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                      AddEditTodoScreen(
-                                        formType: 'update',
-                                        todo: todoState.data[i],
-                                      ),
-                                    ),
-                                  );
-
-                                if (isUpdated!) {
-                                  if (context.mounted) {
-                                    todoContext.read<TodoBloc>().add(const TodoFetchAll());
-                                  }
-                                }
-                              },
-                              child: Ink(
-                                height: 150,
-                                width: 150,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                InkWell(
                                   borderRadius: BorderRadius.circular(8.0),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      offset: Offset(5.0, 5.0),
-                                    )
-                                  ],
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10.0,
-                                  vertical: 10.0,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      todoState.data[i].title!,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0),
-                                    ),
-                                    const SizedBox(
-                                      height: 15.0,
-                                    ),
-                                    Text(
-                                      todoState.data[i].content!,
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 5,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 12.0,
+                                  splashColor: Colors.purple[100],
+                                  highlightColor: Colors.purple[100],
+                                  onTap: () async {
+                                    bool? isUpdated = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => AddEditTodoScreen(
+                                          formType: 'update',
+                                          todo: todoState.data[i],
+                                        ),
                                       ),
+                                    );
+                                
+                                    if (isUpdated!) {
+                                      if (context.mounted) {
+                                        todoContext.read<TodoBloc>().add(const TodoFetchAll());
+                                      }
+                                    }
+                                  },
+                                  child: Ink(
+                                    height: 150,
+                                    width: 150,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Colors.black12,
+                                          offset: Offset(5.0, 5.0),
+                                        )
+                                      ],
                                     ),
-                                  ],
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0,
+                                      vertical: 10.0,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          todoState.data[i].title!,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0),
+                                        ),
+                                        const SizedBox(
+                                          height: 15.0,
+                                        ),
+                                        Text(
+                                          todoState.data[i].content!,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 5,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 12.0,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                if (todoState.data[i].isFinished)
+                                Positioned(
+                                  top: -10.0,
+                                  right: -10.0,
+                                  child: Icon(Icons.task_rounded,
+                                    color: Colors.green[300],
+                                  ),
+                                ),
+                              ],
                             ),
                         ],
                       ),

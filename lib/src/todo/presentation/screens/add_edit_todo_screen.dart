@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todoapp/src/todo/core/parameters/parameters.dart';
 import 'package:todoapp/src/todo/data/models/todo_item_model.dart';
+import 'package:todoapp/src/todo/presentation/blocs/delete_todo/delete_todo_bloc.dart';
 import 'package:todoapp/src/todo/presentation/blocs/update_todo/update_todo_bloc.dart';
 
 import '../blocs/save_todo/save_todo_bloc.dart';
 import '../cubits/toggle_finished/toggle_finished_cubit.dart';
+
+enum SnackBarType { success, error }
 
 class AddEditTodoScreen extends StatelessWidget {
   final String? formType;
@@ -20,6 +23,30 @@ class AddEditTodoScreen extends StatelessWidget {
   final FocusNode _titleNode = FocusNode();
   final FocusNode _contentNode = FocusNode();
 
+  void showSnackBar({required BuildContext context, required SnackBarType type, required String message}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: type == SnackBarType.success ? Colors.green : Colors.red,    
+        content: Row(
+          children: [
+            Icon(
+              type == SnackBarType.success ? Icons.check : Icons.warning_amber_rounded,
+              color: Colors.white,
+            ),
+            const SizedBox(
+              width: 5.0,
+            ),
+            Text(message,
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -27,62 +54,26 @@ class AddEditTodoScreen extends StatelessWidget {
         BlocProvider<ToggleFinishedCubit>(
           create: (context) => ToggleFinishedCubit()..onToggle(todo != null ? !todo!.isFinished : true),
         ),
-        BlocProvider<SaveTodoBloc>(
-          create: (context) => SaveTodoBloc(),
-        ),
-        BlocProvider<UpdateTodoBloc>(
-          create: (context) => UpdateTodoBloc(),
-        ),
       ],
       child: MultiBlocListener(
         listeners: [
           BlocListener<SaveTodoBloc, SaveTodoState>(
             listener: (context, saveState) {
+              if (saveState.status == SaveTodoStatus.loading) {}
+
               if (saveState.status == SaveTodoStatus.failed) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: Colors.red,    
-                    content: Row(
-                      children: [
-                        const Icon(
-                          Icons.warning,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(
-                          width: 5.0,
-                        ),
-                        Text(saveState.errorMessage,
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                showSnackBar(
+                  context: context,
+                  type: SnackBarType.error,
+                  message: saveState.errorMessage,
                 );
               }
 
               if (saveState.status == SaveTodoStatus.success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    backgroundColor: Colors.green,    
-                    content: Row(
-                      children: [
-                        Icon(
-                          Icons.check,
-                          color: Colors.white,
-                        ),
-                        SizedBox(
-                          width: 5.0,
-                        ),
-                        Text('Succesfully saved the todo',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                showSnackBar(
+                  context: context,
+                  type: SnackBarType.success,
+                  message: 'Succesfully saved the todo',
                 );
                 Navigator.of(context).pop(true);
               }
@@ -91,51 +82,44 @@ class AddEditTodoScreen extends StatelessWidget {
 
           BlocListener<UpdateTodoBloc, UpdateTodoState>(
             listener: (context, updateState) {
+              if (updateState.status == UpdateTodoStatus.loading) {}
+
               if (updateState.status == UpdateTodoStatus.failed) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    backgroundColor: Colors.red,    
-                    content: Row(
-                      children: [
-                        const Icon(
-                          Icons.warning,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(
-                          width: 5.0,
-                        ),
-                        Text(updateState.errorMessage,
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                showSnackBar(
+                  context: context,
+                  type: SnackBarType.error,
+                  message: updateState.errorMessage,
                 );
               }
 
               if (updateState.status == UpdateTodoStatus.success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    backgroundColor: Colors.green,    
-                    content: Row(
-                      children: [
-                        Icon(
-                          Icons.check,
-                          color: Colors.white,
-                        ),
-                        SizedBox(
-                          width: 5.0,
-                        ),
-                        Text('Succesfully updated the todo',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                showSnackBar(
+                  context: context,
+                  type: SnackBarType.success,
+                  message: 'Succesfully updated the todo',
+                );
+                Navigator.of(context).pop(true);
+              }
+            },
+          ),
+
+          BlocListener<DeleteTodoBloc, DeleteTodoState>(
+            listener: (context, deleteState) {
+              if (deleteState.status == DeleteTodoStatus.loading) {}
+
+              if (deleteState.status == DeleteTodoStatus.failed) {
+                showSnackBar(
+                  context: context,
+                  type: SnackBarType.error,
+                  message: deleteState.errorMessage,
+                );
+              }
+
+              if (deleteState.status == DeleteTodoStatus.success) {
+                showSnackBar(
+                  context: context,
+                  type: SnackBarType.success,
+                  message: 'Succesfully deleted the todo',
                 );
                 Navigator.of(context).pop(true);
               }
@@ -305,6 +289,30 @@ class AddEditTodoScreen extends StatelessWidget {
                                       'Update',
                                       style: TextStyle(
                                         color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              const SizedBox(
+                                height: 5.0,
+                              ),
+                              if (formType == 'update')
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.width,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4.0),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      toggleContext.read<DeleteTodoBloc>().add(OnDeleteTodo([todo!.id!]));
+                                    },
+                                    child: const Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Colors.purple,
                                       ),
                                     ),
                                   ),
