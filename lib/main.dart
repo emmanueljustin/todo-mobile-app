@@ -11,15 +11,13 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: BlocProviders.get(),
-      child: MyApp(),
+      child: const  MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-
-  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override

@@ -4,6 +4,7 @@ import 'package:todoapp/src/todo/presentation/blocs/todo/todo_bloc.dart';
 import '../../src/todo/presentation/blocs/delete_todo/delete_todo_bloc.dart';
 import '../../src/todo/presentation/blocs/save_todo/save_todo_bloc.dart';
 import '../../src/todo/presentation/blocs/update_todo/update_todo_bloc.dart';
+import '../../src/todo/presentation/cubits/multi_selector/multi_selector_cubit.dart';
 import '../../src/todo/presentation/cubits/toggle_finished/toggle_finished_cubit.dart';
 
 class BlocProviders {
@@ -14,6 +15,7 @@ class BlocProviders {
       BlocProvider<SaveTodoBloc>(create: (context) => SaveTodoBloc()),
       BlocProvider<UpdateTodoBloc>(create: (context) => UpdateTodoBloc()),
       BlocProvider<DeleteTodoBloc>(create: (context) => DeleteTodoBloc()),
+      BlocProvider<MultiSelectorCubit>(create: (context) => MultiSelectorCubit()),
     ];
   }
 }
