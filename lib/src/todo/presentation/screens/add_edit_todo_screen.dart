@@ -307,7 +307,7 @@ class AddEditTodoScreen extends StatelessWidget {
                                       ),
                                     ),
                                     onPressed: () {
-                                      toggleContext.read<DeleteTodoBloc>().add(OnDeleteTodo([todo!.id!]));
+                                      toggleContext.read<DeleteTodoBloc>().add(OnDeleteTodo([todo!.id]));
                                     },
                                     child: const Text(
                                       'Delete',

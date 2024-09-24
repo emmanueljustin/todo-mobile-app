@@ -4,10 +4,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todoapp/global_core/hive_service/hive_boxes.dart';
 import 'package:todoapp/global_core/providers/bloc_providers.dart';
 import 'package:todoapp/src/authentication/presentation/blocs/login_bloc/login_bloc.dart';
-import 'package:todoapp/src/authentication/presentation/screens/login_screen.dart';
+import 'package:todoapp/wrapper.dart';
 
 import 'global_core/locator.dart';
-import 'src/todo/presentation/screens/todo_home.dart';
 // import 'src/todo/presentation/screens/todo_home.dart';
 
 void main() async {
@@ -35,21 +34,7 @@ class MyApp extends StatelessWidget {
       ),
       home: BlocProvider<LoginBloc>(
         create: (context) => LoginBloc()..add(const OnLoginStarted()),
-        child: BlocBuilder<LoginBloc, LoginState>(
-          builder: (context, loginState) {
-            if (loginState.status == LoginStatus.loading) {
-              return const Scaffold(
-                backgroundColor: Colors.white,
-                body: SafeArea(
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ),
-              );
-            }
-            return loginState.status == LoginStatus.success ? const TodoHome() : LoginScreen();
-          },
-        ),
+        child: const Wrapper(),
       ),
     );
   }

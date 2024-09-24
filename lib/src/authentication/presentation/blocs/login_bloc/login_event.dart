@@ -23,3 +23,10 @@ class OnLogin extends LoginEvent {
     params
   ];
 }
+
+class LogoutTrigger extends LoginEvent {
+  const LogoutTrigger();
+
+  @override
+  List<Object> get props => [];
+}

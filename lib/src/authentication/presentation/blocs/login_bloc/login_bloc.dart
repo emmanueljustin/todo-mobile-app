@@ -6,7 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:get_it/get_it.dart';
 import 'package:todoapp/global_core/hive_service/hive_methods.dart';
 import 'package:todoapp/src/authentication/core/parameters/auth_parameters.dart';
-import 'package:todoapp/src/authentication/data/models/login_Data_model.dart';
+import 'package:todoapp/src/authentication/data/models/login_data_model.dart';
 import 'package:todoapp/src/authentication/domain/usecases/user_login_usecase.dart';
 
 part 'login_event.dart';
@@ -16,6 +16,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   LoginBloc() : super(const LoginState()) {
     on<OnLoginStarted>(_onLoginStarted);
     on<OnLogin>(_onLogin);
+    on<LogoutTrigger>(_onLogoutTrigger);
   }
 
   final onUserLogin = GetIt.instance<UserLoginUsecase>();
@@ -25,7 +26,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     final userData = hiveService.getUserData();
 
     if (userData != null) {
-      log('::: from hive $userData');
       emit(state.copyWith(status: LoginStatus.success, data: userData));
     } else {
       emit(state.copyWith(status: LoginStatus.initial));
@@ -39,13 +39,18 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
     if (data != null) {
       hiveService.setUserData(data);
-      log('::: <> success: $data');
       emit(state.copyWith(status: LoginStatus.success, data: data));
+      log('::: <> This is ok');
     }
 
     if (error != null) {
-      log('::: <> ERR: $error');
       emit(state.copyWith(status: LoginStatus.failed, errorMessage: error));
+      log('::: <> This is NOT ok');
     }
+  }
+
+  FutureOr<void> _onLogoutTrigger(LogoutTrigger event, Emitter<LoginState> emit) async {
+    emit(state.copyWith(status: LoginStatus.initial, data: const LoginDataModel()));
+    log('::: <> ${state.status}');
   }
 }

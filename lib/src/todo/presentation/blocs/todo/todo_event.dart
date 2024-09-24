@@ -8,15 +8,15 @@ class TodoEvent extends Equatable {
 }
 
 class TodoStarted extends TodoEvent {
-
   const TodoStarted();
+
   @override
   List<Object> get props => [];
 }
 
-class TodoFetchAll extends TodoEvent {
+class TodoInitFetch extends TodoEvent {
+  const TodoInitFetch();
 
-  const TodoFetchAll();
   @override
   List<Object> get props => [];
 }

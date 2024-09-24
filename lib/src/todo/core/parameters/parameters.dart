@@ -24,3 +24,19 @@ class TodoParams extends Equatable {
     isFinished
   ];
 }
+
+class PageParams extends Equatable {
+  final int pageView;
+  final int itemsPerPage;
+
+  const PageParams({
+    required this.pageView,
+    required this.itemsPerPage
+  });
+
+  @override
+  List<Object> get props => [
+    pageView,
+    itemsPerPage
+  ];
+}

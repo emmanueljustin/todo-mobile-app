@@ -3,10 +3,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:todoapp/src/authentication/presentation/blocs/login_bloc/login_bloc.dart';
+import 'package:todoapp/src/authentication/presentation/cubits/logout_cubit/logout_cubit.dart';
 import 'package:todoapp/src/todo/presentation/blocs/todo/todo_bloc.dart';
 import 'package:todoapp/src/todo/presentation/cubits/multi_selector/multi_selector_cubit.dart';
 import 'package:todoapp/src/todo/presentation/screens/add_edit_todo_screen.dart';
 
+// import '../../../authentication/presentation/screens/login_screen.dart';
 import '../blocs/delete_todo/delete_todo_bloc.dart';
 
 class TodoHome extends StatelessWidget {
@@ -48,7 +51,7 @@ class TodoHome extends StatelessWidget {
             height: 10.0,
           ),
           ElevatedButton(
-            onPressed: () => context.read<TodoBloc>().add(const TodoFetchAll()),
+            onPressed: () => context.read<TodoBloc>().add(const TodoInitFetch()),
             child: const Text('Reload'),
           ),
         ],
@@ -60,26 +63,55 @@ class TodoHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<TodoBloc>(
-          create: (context) => TodoBloc()..add(const TodoFetchAll()),
+        BlocProvider.value(
+          value: BlocProvider.of<TodoBloc>(context, listen: false)..add(const TodoInitFetch()),
         ),
+        // BlocProvider<TodoBloc>(
+        //   create: (context) => TodoBloc()..add(const TodoInitFetch()),
+        // ),
       ],
-      child: BlocListener<DeleteTodoBloc, DeleteTodoState>(
-        listener: (context, deleteState) {
-          if (deleteState.status == DeleteTodoStatus.loading) {}
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<DeleteTodoBloc, DeleteTodoState>(
+            listener: (context, deleteState) {
+              if (deleteState.status == DeleteTodoStatus.loading) {}
 
-          if (deleteState.status == DeleteTodoStatus.failed) {}
+              if (deleteState.status == DeleteTodoStatus.failed) {}
 
-          if (deleteState.status == DeleteTodoStatus.success) {
-            context.read<TodoBloc>().add(const TodoFetchAll());
-          }
-        },
+              if (deleteState.status == DeleteTodoStatus.success) {
+                context.read<TodoBloc>().add(const TodoInitFetch());
+              }
+            },
+          ),
+          BlocListener<LogoutCubit, LogoutState>(
+            listener: (context, logoutState) {
+              if (logoutState.status == LogoutStatus.loading) {}
+
+              if (logoutState.status == LogoutStatus.failed) {}
+
+              if (logoutState.status == LogoutStatus.success) {
+                context.read<LoginBloc>().add(const LogoutTrigger());
+                // Navigator.of(context).popUntil((route) => route.isFirst);
+                // Navigator.pushReplacement(
+                //   context,
+                //   MaterialPageRoute(
+                //     builder: (context) => LoginScreen(),
+                //   ),
+                // );
+              }
+            },
+          ),
+        ],
         child: BlocBuilder<MultiSelectorCubit, MultiSelectorState>(
           builder: (multiSelectContext, multiSelectState) {
             return Scaffold(
               backgroundColor: Colors.purple[50],
               appBar: AppBar(
                 backgroundColor: Colors.purple[50],
+                leading: IconButton(
+                  onPressed: () => multiSelectContext.read<LogoutCubit>().onLogout(),
+                  icon: const Icon(Icons.logout_rounded),
+                ),
                 title: const Text(
                   'Todo Application',
                   style: TextStyle(
@@ -96,7 +128,7 @@ class TodoHome extends StatelessWidget {
 
                             if (isSaved!) {
                               if (context.mounted) {
-                                todoContext.read<TodoBloc>().add(const TodoFetchAll());
+                                todoContext.read<TodoBloc>().add(const TodoInitFetch());
                               }
                             }
                           },
@@ -128,7 +160,7 @@ class TodoHome extends StatelessWidget {
                   }
                   return RefreshIndicator(
                     onRefresh: () async {
-                      todoContext.read<TodoBloc>().add(const TodoFetchAll());
+                      todoContext.read<TodoBloc>().add(const TodoInitFetch());
                     },
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -148,6 +180,7 @@ class TodoHome extends StatelessWidget {
                           const SizedBox(
                             height: 20.0,
                           ),
+                          if (todoState.data != null)
                           BlocBuilder<MultiSelectorCubit, MultiSelectorState>(
                             builder: (multiSelectContext, multiSelectState) {
                               return Container(
@@ -162,7 +195,7 @@ class TodoHome extends StatelessWidget {
                                   ),
                                   shrinkWrap: true,
                                   children: [
-                                    for (int i = 0; i < todoState.data.length; i++)
+                                    for (int i = 0; i < todoState.data!.todoItems .length; i++)
                                       Stack(
                                         clipBehavior: Clip.none,
                                         children: [
@@ -172,21 +205,21 @@ class TodoHome extends StatelessWidget {
                                             highlightColor: Colors.purple[100],
                                             onTap: () async {
                                               if (multiSelectState.selectEnabled) {
-                                                multiSelectContext.read<MultiSelectorCubit>().onSelect(todoState.data[i].id!);
+                                                multiSelectContext.read<MultiSelectorCubit>().onSelect(todoState.data!.todoItems[i].id);
                                               } else {
                                                 bool? isUpdated = await Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
                                                     builder: (context) => AddEditTodoScreen(
                                                       formType: 'update',
-                                                      todo: todoState.data[i],
+                                                      todo: todoState.data!.todoItems[i],
                                                     ),
                                                   ),
                                                 );
 
                                                 if (isUpdated!) {
                                                   if (context.mounted) {
-                                                    todoContext.read<TodoBloc>().add(const TodoFetchAll());
+                                                    todoContext.read<TodoBloc>().add(const TodoInitFetch());
                                                   }
                                                 }
                                               }
@@ -194,7 +227,7 @@ class TodoHome extends StatelessWidget {
                                             onLongPress: () async {
                                               if (!multiSelectState.selectEnabled) {
                                                 multiSelectContext.read<MultiSelectorCubit>().enableMultiSelect();
-                                                multiSelectContext.read<MultiSelectorCubit>().onSelect(todoState.data[i].id!);
+                                                multiSelectContext.read<MultiSelectorCubit>().onSelect(todoState.data!.todoItems[i].id);
                                               } else {
                                                 log('Cannot disable');
                                               }
@@ -207,7 +240,7 @@ class TodoHome extends StatelessWidget {
                                                 border: Border.all(
                                                   color: Colors.purple,
                                                   width: multiSelectState.selectEnabled
-                                                      ? multiSelectState.selectedItems.contains(todoState.data[i].id)
+                                                      ? multiSelectState.selectedItems.contains(todoState.data!.todoItems[i].id)
                                                           ? 5.0
                                                           : 1.0
                                                       : 1.0,
@@ -228,7 +261,7 @@ class TodoHome extends StatelessWidget {
                                                 crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    todoState.data[i].title!,
+                                                    todoState.data!.todoItems[i].title!,
                                                     overflow: TextOverflow.ellipsis,
                                                     style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0),
                                                   ),
@@ -236,7 +269,7 @@ class TodoHome extends StatelessWidget {
                                                     height: 15.0,
                                                   ),
                                                   Text(
-                                                    todoState.data[i].content!,
+                                                    todoState.data!.todoItems[i].content!,
                                                     overflow: TextOverflow.ellipsis,
                                                     maxLines: 5,
                                                     style: const TextStyle(
@@ -248,7 +281,7 @@ class TodoHome extends StatelessWidget {
                                               ),
                                             ),
                                           ),
-                                          if (todoState.data[i].isFinished)
+                                          if (todoState.data!.todoItems[i].isFinished)
                                             Positioned(
                                               top: -10.0,
                                               right: -10.0,

@@ -1,5 +1,5 @@
 import 'package:todoapp/global_core/hive_service/hive_boxes.dart';
-import 'package:todoapp/src/authentication/data/models/login_Data_model.dart';
+import 'package:todoapp/src/authentication/data/models/login_data_model.dart';
 
 class HiveMethods {
   final HiveBoxes _hiveBoxes = HiveBoxes();
@@ -10,5 +10,9 @@ class HiveMethods {
 
   LoginDataModel? getUserData() {
     return _hiveBoxes.userBox.get('usr_data');
+  }
+
+  void clearBoxes() {
+    _hiveBoxes.userBox.clear();
   }
 }

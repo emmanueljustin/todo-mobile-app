@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:todoapp/src/authentication/data/models/login_Data_model.dart';
+import 'package:todoapp/src/authentication/data/models/login_data_model.dart';
 
 class LoginDataAdapter extends TypeAdapter<LoginDataModel> {
 

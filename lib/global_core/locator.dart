@@ -9,6 +9,7 @@ import 'package:todoapp/src/todo/data/repositories/todo_repository_impl.dart';
 import 'package:todoapp/src/todo/domain/repositories/todo_repository.dart';
 
 import '../src/authentication/domain/usecases/user_logout_usecase.dart';
+import '../src/authentication/domain/usecases/user_register_usecase.dart';
 import '../src/todo/domain/usecases/delete_todos_usecase.dart';
 import '../src/todo/domain/usecases/get_all_todos_usecase.dart';
 import '../src/todo/domain/usecases/save_todo_usecase.dart';
@@ -48,4 +49,5 @@ void _setupAuthModules() {
   //Usecases
   getIt.registerLazySingleton<UserLoginUsecase>(() => UserLoginUsecase(getIt()));
   getIt.registerLazySingleton<UserLogoutUsecase>(() => UserLogoutUsecase(getIt()));
+  getIt.registerLazySingleton<UserRegisterUsecase>(() => UserRegisterUsecase(getIt()));
 }

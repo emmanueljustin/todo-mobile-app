@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
-import 'package:todoapp/src/todo/data/models/todo_item_model.dart';
 import 'package:todoapp/src/todo/domain/repositories/todo_repository.dart';
 
 import '../../core/parameters/parameters.dart';
+import '../models/todo_sets_model.dart';
 
 class TodoRepositoryImpl extends TodoRepository {
   TodoRepositoryImpl(super.remoteDataSrc);
 
   @override
-  Future<(String?, List<TodoItemModel>?)> getAllTodos() async {
+  Future<(String?, TodoSetsModel?)> getAllTodos(PageParams params) async {
     try {
-      final data = await remoteDataSrc.getAllTodos();
+      final data = await remoteDataSrc.getAllTodos(params);
       return (null, data);
     } on DioException catch (dio) {
       return (dio.message, null);

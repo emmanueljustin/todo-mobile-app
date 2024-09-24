@@ -1,13 +1,16 @@
-import 'package:todoapp/global_core/usecases/usecase_with_no_params.dart';
-import 'package:todoapp/src/todo/data/models/todo_item_model.dart';
+import 'package:todoapp/global_core/usecases/usecase_with_params.dart';
+import 'package:todoapp/src/todo/core/parameters/parameters.dart';
 import 'package:todoapp/src/todo/domain/repositories/todo_repository.dart';
 
-class GetAllTodosUsecase extends UseCaseWithNoParams<List<TodoItemModel>> {
+import '../../data/models/todo_sets_model.dart';
+
+class GetAllTodosUsecase extends UseCaseWithParams<TodoSetsModel, PageParams> {
   final TodoRepository _todoRepository;
   GetAllTodosUsecase(this._todoRepository);
-  
+
   @override
-  Future<(String?, List<TodoItemModel>?)> call() {
-    return _todoRepository.getAllTodos();
+  Future<(String?, TodoSetsModel?)> call(PageParams params) {
+    return _todoRepository.getAllTodos(params);
   }
+
 }

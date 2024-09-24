@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:todoapp/src/authentication/core/parameters/auth_parameters.dart';
-import 'package:todoapp/src/authentication/data/models/login_Data_model.dart';
+import 'package:todoapp/src/authentication/data/models/login_data_model.dart';
 import 'package:todoapp/src/authentication/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
@@ -22,6 +22,18 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<(String?, bool?)> logout() async {
     try {
       final data = await remoteAuthDataSrc.logout();
+      return (null, data);
+    } on DioException catch (dio) {
+      return (dio.message, null);
+    } catch (e) {
+      return ("Oops! Server has encountered an issue.", null);
+    }
+  }
+  
+  @override
+  Future<(String?, LoginDataModel?)> register(RegistrationParameters params) async {
+    try {
+      final data = await remoteAuthDataSrc.register(params);
       return (null, data);
     } on DioException catch (dio) {
       return (dio.message, null);

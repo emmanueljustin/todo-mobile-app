@@ -4,18 +4,18 @@ enum TodoStatus {initial, loading, success, failed}
 
 class TodoState extends Equatable {
   final TodoStatus status;
-  final List<TodoItemModel> data;
+  final TodoSetsModel? data;
   final String errorMessage;
 
   const TodoState({
     this.status = TodoStatus.initial,
-    this.data = const [],
+    this.data,
     this.errorMessage = ''
   });
 
   TodoState copyWith({
     TodoStatus? status,
-    List<TodoItemModel>? data,
+    TodoSetsModel? data,
     String? errorMessage
   }) => TodoState(
     status: status ?? this.status,
