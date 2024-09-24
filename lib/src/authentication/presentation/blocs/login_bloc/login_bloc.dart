@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -40,17 +39,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     if (data != null) {
       hiveService.setUserData(data);
       emit(state.copyWith(status: LoginStatus.success, data: data));
-      log('::: <> This is ok');
     }
 
     if (error != null) {
       emit(state.copyWith(status: LoginStatus.failed, errorMessage: error));
-      log('::: <> This is NOT ok');
     }
   }
 
   FutureOr<void> _onLogoutTrigger(LogoutTrigger event, Emitter<LoginState> emit) async {
     emit(state.copyWith(status: LoginStatus.initial, data: const LoginDataModel()));
-    log('::: <> ${state.status}');
   }
 }
