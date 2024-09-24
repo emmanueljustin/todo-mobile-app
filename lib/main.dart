@@ -7,7 +7,6 @@ import 'package:todoapp/src/authentication/presentation/blocs/login_bloc/login_b
 import 'package:todoapp/wrapper.dart';
 
 import 'global_core/locator.dart';
-// import 'src/todo/presentation/screens/todo_home.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -20,3 +20,10 @@ class TodoInitFetch extends TodoEvent {
   @override
   List<Object> get props => [];
 }
+
+class TodoPageNav extends TodoEvent {
+  const TodoPageNav();
+
+  @override
+  List<Object> get props => [];
+}

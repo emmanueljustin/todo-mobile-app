@@ -8,6 +8,14 @@ class TodoSetsModel extends TodoSets {
     super.pageData
   });
 
+  TodoSetsModel copyWith({
+    List<TodoItemModel>? todoItems,
+    PageModel? pageData
+  }) => TodoSetsModel(
+    todoItems: todoItems ?? this.todoItems,
+    pageData: pageData ?? this.pageData
+  );
+
   factory TodoSetsModel.fromJson(Map<String, dynamic> json) {
     return TodoSetsModel(
       todoItems: ((json['todo_items'] ?? []) as List).map((e) => TodoItemModel.fromJson(e)).toList(),

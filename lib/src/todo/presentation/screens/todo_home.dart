@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
 import 'package:todoapp/src/authentication/presentation/blocs/login_bloc/login_bloc.dart';
 import 'package:todoapp/src/authentication/presentation/cubits/logout_cubit/logout_cubit.dart';
 import 'package:todoapp/src/todo/presentation/blocs/todo/todo_bloc.dart';
@@ -158,149 +159,151 @@ class TodoHome extends StatelessWidget {
                   if (todoState.status == TodoStatus.failed) {
                     return errorMessage(context, todoState);
                   }
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      todoContext.read<TodoBloc>().add(const TodoInitFetch());
-                    },
-                    child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 50.0,
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.only(left: 20.0),
-                            child: Text(
-                              'My saved todo list',
-                              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17.0),
+                  return LazyLoadScrollView(
+                    onEndOfPage: () => context.read<TodoBloc>().add(const TodoPageNav()),
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        todoContext.read<TodoBloc>().add(const TodoInitFetch());
+                      },
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(
+                              height: 50.0,
                             ),
-                          ),
-                          const SizedBox(
-                            height: 20.0,
-                          ),
-                          if (todoState.data != null)
-                          BlocBuilder<MultiSelectorCubit, MultiSelectorState>(
-                            builder: (multiSelectContext, multiSelectState) {
-                              return Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                                width: MediaQuery.of(context).size.width,
-                                child: GridView(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    mainAxisSpacing: 20.0,
-                                    crossAxisSpacing: 20.0,
-                                  ),
-                                  shrinkWrap: true,
-                                  children: [
-                                    for (int i = 0; i < todoState.data!.todoItems .length; i++)
-                                      Stack(
-                                        clipBehavior: Clip.none,
-                                        children: [
-                                          InkWell(
-                                            borderRadius: BorderRadius.circular(8.0),
-                                            splashColor: Colors.purple[100],
-                                            highlightColor: Colors.purple[100],
-                                            onTap: () async {
-                                              if (multiSelectState.selectEnabled) {
-                                                multiSelectContext.read<MultiSelectorCubit>().onSelect(todoState.data!.todoItems[i].id);
-                                              } else {
-                                                bool? isUpdated = await Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) => AddEditTodoScreen(
-                                                      formType: 'update',
-                                                      todo: todoState.data!.todoItems[i],
+                            const Padding(
+                              padding: EdgeInsets.only(left: 20.0),
+                              child: Text(
+                                'My saved todo list',
+                                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17.0),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 20.0,
+                            ),
+                            BlocBuilder<MultiSelectorCubit, MultiSelectorState>(
+                              builder: (multiSelectContext, multiSelectState) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                                  width: MediaQuery.of(context).size.width,
+                                  child: GridView(
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2,
+                                      mainAxisSpacing: 20.0,
+                                      crossAxisSpacing: 20.0,
+                                    ),
+                                    shrinkWrap: true,
+                                    children: [
+                                      for (int i = 0; i < todoState.data.todoItems .length; i++)
+                                        Stack(
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            GestureDetector(
+                                              // borderRadius: BorderRadius.circular(8.0),
+                                              // splashColor: Colors.purple[100],
+                                              // highlightColor: Colors.purple[100],
+                                              onTap: () async {
+                                                if (multiSelectState.selectEnabled) {
+                                                  multiSelectContext.read<MultiSelectorCubit>().onSelect(todoState.data.todoItems[i].id);
+                                                } else {
+                                                  bool? isUpdated = await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) => AddEditTodoScreen(
+                                                        formType: 'update',
+                                                        todo: todoState.data.todoItems[i],
+                                                      ),
                                                     ),
-                                                  ),
-                                                );
-
-                                                if (isUpdated!) {
-                                                  if (context.mounted) {
-                                                    todoContext.read<TodoBloc>().add(const TodoInitFetch());
+                                                  );
+                        
+                                                  if (isUpdated!) {
+                                                    if (context.mounted) {
+                                                      todoContext.read<TodoBloc>().add(const TodoInitFetch());
+                                                    }
                                                   }
                                                 }
-                                              }
-                                            },
-                                            onLongPress: () async {
-                                              if (!multiSelectState.selectEnabled) {
-                                                multiSelectContext.read<MultiSelectorCubit>().enableMultiSelect();
-                                                multiSelectContext.read<MultiSelectorCubit>().onSelect(todoState.data!.todoItems[i].id);
-                                              } else {
-                                                log('Cannot disable');
-                                              }
-                                            },
-                                            child: Ink(
-                                              height: 150,
-                                              width: 150,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                border: Border.all(
-                                                  color: Colors.purple,
-                                                  width: multiSelectState.selectEnabled
-                                                      ? multiSelectState.selectedItems.contains(todoState.data!.todoItems[i].id)
-                                                          ? 5.0
-                                                          : 1.0
-                                                      : 1.0,
+                                              },
+                                              onLongPress: () async {
+                                                if (!multiSelectState.selectEnabled) {
+                                                  multiSelectContext.read<MultiSelectorCubit>().enableMultiSelect();
+                                                  multiSelectContext.read<MultiSelectorCubit>().onSelect(todoState.data.todoItems[i].id);
+                                                } else {
+                                                  log('Cannot disable');
+                                                }
+                                              },
+                                              child: Container(
+                                                height: 150,
+                                                width: 150,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  border: Border.all(
+                                                    color: Colors.purple,
+                                                    width: multiSelectState.selectEnabled
+                                                        ? multiSelectState.selectedItems.contains(todoState.data.todoItems[i].id)
+                                                            ? 5.0
+                                                            : 1.0
+                                                        : 1.0,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(8.0),
+                                                  boxShadow: const [
+                                                    BoxShadow(
+                                                      color: Colors.black12,
+                                                      offset: Offset(5.0, 5.0),
+                                                    )
+                                                  ],
                                                 ),
-                                                borderRadius: BorderRadius.circular(8.0),
-                                                boxShadow: const [
-                                                  BoxShadow(
-                                                    color: Colors.black12,
-                                                    offset: Offset(5.0, 5.0),
-                                                  )
-                                                ],
-                                              ),
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 10.0,
-                                                vertical: 10.0,
-                                              ),
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    todoState.data!.todoItems[i].title!,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0),
-                                                  ),
-                                                  const SizedBox(
-                                                    height: 15.0,
-                                                  ),
-                                                  Text(
-                                                    todoState.data!.todoItems[i].content!,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    maxLines: 5,
-                                                    style: const TextStyle(
-                                                      fontWeight: FontWeight.w400,
-                                                      fontSize: 12.0,
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 10.0,
+                                                  vertical: 10.0,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      todoState.data.todoItems[i].title!,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0),
                                                     ),
-                                                  ),
-                                                ],
+                                                    const SizedBox(
+                                                      height: 15.0,
+                                                    ),
+                                                    Text(
+                                                      todoState.data.todoItems[i].content!,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      maxLines: 5,
+                                                      style: const TextStyle(
+                                                        fontWeight: FontWeight.w400,
+                                                        fontSize: 12.0,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          if (todoState.data!.todoItems[i].isFinished)
-                                            Positioned(
-                                              top: -10.0,
-                                              right: -10.0,
-                                              child: Icon(
-                                                Icons.task_rounded,
-                                                color: Colors.green[300],
+                                            if (todoState.data.todoItems[i].isFinished)
+                                              Positioned(
+                                                top: -10.0,
+                                                right: -10.0,
+                                                child: Icon(
+                                                  Icons.task_rounded,
+                                                  color: Colors.green[300],
+                                                ),
                                               ),
-                                            ),
-                                        ],
-                                      ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(
-                            height: 50.0,
-                          ),
-                        ],
+                                          ],
+                                        ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(
+                              height: 50.0,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
